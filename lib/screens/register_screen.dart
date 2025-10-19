@@ -17,6 +17,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
+  bool _isLoading = false;
+
   Future<void> _register() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -29,32 +31,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    setState(() => _isLoading = true);
+
     try {
+      // 🔹 Buat akun Firebase Auth
       final userCred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Simpan ke Firestore
-      await _firestore.collection('users').doc(userCred.user!.uid).set({
+      // 🔹 Simpan data user di Firestore (async tapi tidak menunggu)
+      _firestore.collection('users').doc(userCred.user!.uid).set({
         'uid': userCred.user!.uid,
         'email': email,
         'name': name,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
+      // 🔹 Pesan sukses
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registrasi berhasil!')),
+        const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      // 🔹 Kembali ke halaman Login
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message ?? 'Registrasi gagal')),
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -69,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+              decoration: const InputDecoration(labelText: 'Nama'),
             ),
             TextField(
               controller: _emailController,
@@ -81,10 +93,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               obscureText: true,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _register,
-              child: const Text('Daftar'),
-            ),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _register,
+                    child: const Text('Daftar'),
+                  ),
             TextButton(
               onPressed: () => Navigator.pushReplacement(
                 context,
