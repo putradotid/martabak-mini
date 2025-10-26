@@ -36,8 +36,8 @@ class CustomBottomNav extends StatelessWidget {
           label: "Profile",
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.contact_mail),
-          label: "Contact",
+          icon: Icon(Icons.chat),
+          label: "Chat",
         ),
       ],
     );

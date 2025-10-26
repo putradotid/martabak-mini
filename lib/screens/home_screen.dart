@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'login_screen.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../pages/home_page.dart';
 import '../pages/card_page.dart';
 import '../pages/orders_page.dart';
 import '../pages/profile_page.dart';
-import '../pages/contact_page.dart';
+import '../pages/chat_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     CardPage(),
     OrdersPage(),
     ProfilePage(),
-    ContactPage(),
+    ChatPage(),
   ];
 
   void _onNavTapped(int index) {
@@ -35,11 +37,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
+    // final user = FirebaseAuth.instance.currentUser!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Halo, ${user.email}'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/icons-kompres.png',
+              height: 50, // bisa disesuaikan
+              width: 50,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Martabak Mini',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 28,
+              ),
+            ),
+          ],
+        ),
+        // centerTitle: true,
         actions: [
           IconButton(
             onPressed: () async {
