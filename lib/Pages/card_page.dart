@@ -92,7 +92,6 @@ class CardPage extends StatelessWidget {
                   border: Border.all(color: const Color(0xffEAEAEA)),
                 ),
               ),
-
               const SizedBox(height: 20),
 
               // 💰 Ringkasan Pembayaran

@@ -76,7 +76,7 @@ class HomePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
 
                 // Search Bar
                 Container(
@@ -99,25 +99,12 @@ class HomePage extends StatelessWidget {
 
                 // Category Row
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildCategory("All", isActive: true),
                     _buildCategory("Martabak"),
                     _buildCategory("Minuman"),
                   ],
-                ),
-                const SizedBox(height: 16),
-
-                Container(
-                width: 315,
-                height: 140,
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: AssetImage("assets/icon.png"),
-                    fit: BoxFit.contain,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
                 ),
                 const SizedBox(height: 16),
 

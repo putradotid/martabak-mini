@@ -7,114 +7,79 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 30),
-            // Foto profil
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/150?img=3', // Ganti dengan foto profil kamu
-                  ),
-                ),
-                Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: const Icon(
-                    Icons.add,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Annette Black',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Divider(thickness: 1, indent: 40, endIndent: 40),
-
-            const SizedBox(height: 20),
-            // Informasi profil
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 24),
               child: Column(
-                children: const [
-                  InfoRow(title: 'User ID', value: '@annette.me'),
-                  SizedBox(height: 12),
-                  InfoRow(title: 'Location', value: 'New York, NYC'),
-                  SizedBox(height: 12),
-                  InfoRow(title: 'Phone', value: '(239) 555-0108'),
-                  SizedBox(height: 12),
-                  InfoRow(title: 'Email Address', value: 'demo@mail.com'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 40),
-
-            // Tombol Edit Profile
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                children: [CircleAvatar(radius: 50, backgroundImage: NetworkImage(""),),
+                SizedBox(width: 12, height: 12,),
+                Text("Apriliyanto",style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold,color: Colors.orange[800]),),
+                Text("aprildwi@gmail.com",style: TextStyle(color: Colors.grey[700]),),
+                SizedBox(height: 12),
+                OutlinedButton.icon(onPressed: (){},
+                icon: Icon(Icons.edit,color: Colors.orange,), 
+                label: Text("Edit Profil "),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.orange),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  foregroundColor: Colors.orange
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
               ),
-              child: const Text(
-                'Edit profile',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
+            ],
+          ),
+        ),
+        SizedBox(height: 16),
+        _buildMenuItem(Icons.receipt_long, "Riwayat Pesanan"),
+        _buildMenuItem(Icons.settings, "Pengaturan Akun"),
+        _buildMenuItem(Icons.help_outline, "Bantuan"),
+        _builMenuLogoutItem(context),
+        SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
-}
+  Widget _buildMenuItem(IconData icon, String title, {Color? iconColor}) {
+    return ListTile(
+      leading: Icon(icon, color: iconColor ?? Colors.orange),
+      title: Text(title, style: TextStyle(fontSize: 16),
+      ),
+      trailing: Icon(Icons.chevron_right,color: Colors.grey),
+      onTap: (){},
+    );
+  }
 
-class InfoRow extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const InfoRow({
-    super.key,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(color: Colors.grey, fontSize: 14),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+  Widget _builMenuLogoutItem(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.logout, color: Colors.red,),
+      title: Text("Keluar", style: TextStyle(fontSize: 16),),
+      trailing: Icon(Icons.chevron_right,color: Colors.grey,),
+      onTap: (){
+        showDialog(context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Keluar Aplikasi"),
+          content: Text("Yakin ingin keluar?"),
+          actions: [
+            TextButton(
+              child: Text("Batal"),
+              onPressed: () => Navigator.of(context).pop(), 
+            ),
+            TextButton(
+               child: Text("Keluar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // SystemNavigator.pop();
+                },
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
