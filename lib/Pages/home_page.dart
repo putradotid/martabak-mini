@@ -1,128 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:auth_firebase/bloc/menu/menu_bloc.dart'; 
+import 'package:auth_firebase/bloc/menu/menu_event.dart'; 
+import 'package:auth_firebase/bloc/menu/menu_state.dart'; 
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final coffees = [
-      {
-        'name': 'Cappuccino',
-        'desc': 'With Steamed Milk',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '4.5',
-      },
-      {
-        'name': 'Cappuccino',
-        'desc': 'With Foam',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '4.2',
-      },
-      {
-        'name': 'Robusta Beans',
-        'desc': 'Medium Roasted',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '3.5',
-      },
-      {
-        'name': 'Cappuccino Beans',
-        'desc': 'With Steamed Milk',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '3.8',
-      },
-      {
-        'name': 'Susu Kocok',
-        'desc': 'With Steamed Milk',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '3.8',
-      },
-      {
-        'name': 'Teh Tarik',
-        'desc': 'With Steamed Milk',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '3.8',
-      },
-      {
-        'name': 'Jeruk Nipis',
-        'desc': 'With Steamed Milk',
-        'price': '\$ 4.20',
-        'image': 'assets/icon.png',
-        'rating': '3.8',
-      },
-    ];
-
-    return Scaffold(
-      backgroundColor: Colors.white, // 🔹 Ubah ke putih
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: SingleChildScrollView(
+    return BlocProvider(
+      create: (_) => MenuBloc()..add(LoadMenu()),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 Text(
-                  "Find the best\ncoffee for you",
+                  "Temukan Martabak Terbaik\nUntukmu",
                   style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    color: Colors.black, // 🔹 Warna teks hitam
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
-                // Search Bar
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200], // 🔹 Ganti jadi abu muda
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: const TextField(
-                    style: TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "Find Your Coffee...",
-                      hintStyle: TextStyle(color: Colors.black45),
-                      icon: Icon(Icons.search, color: Colors.black45),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                // Category filter
+                BlocBuilder<MenuBloc, MenuState>(
+                  builder: (context, state) {
+                    final bloc = context.read<MenuBloc>();
+                    final categories = ['All', 'Martabak', 'Minuman'];
 
-                // Category Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildCategory("All", isActive: true),
-                    _buildCategory("Martabak"),
-                    _buildCategory("Minuman"),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Coffee Grid
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemCount: coffees.length,
-                  itemBuilder: (context, index) {
-                    final coffee = coffees[index];
-                    return _buildCoffeeCard(coffee);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: categories.map((cat) {
+                        final isActive = state.selectedCategory == cat;
+                        return GestureDetector(
+                          onTap: () =>
+                              bloc.add(FilterMenuByCategory(cat)),
+                          child: Column(
+                            children: [
+                              Text(
+                                cat,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: isActive
+                                      ? Colors.orangeAccent
+                                      : Colors.black54,
+                                ),
+                              ),
+                              if (isActive)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 4),
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.orangeAccent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                )
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
                   },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Menu Grid
+                Expanded(
+                  child: BlocBuilder<MenuBloc, MenuState>(
+                    builder: (context, state) {
+                      return GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: state.items.length,
+                        itemBuilder: (context, index) {
+                          final item = state.items[index];
+                          return _buildMenuCard(item);
+                        },
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -132,34 +102,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCategory(String text, {bool isActive = false}) {
-    return Column(
-      children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: isActive ? Colors.orangeAccent : Colors.black54,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        if (isActive)
-          Container(
-            width: 6,
-            height: 6,
-            margin: const EdgeInsets.only(top: 4),
-            decoration: const BoxDecoration(
-              color: Colors.orangeAccent,
-              shape: BoxShape.circle,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildCoffeeCard(Map<String, String> coffee) {
+  Widget _buildMenuCard(Map<String, String> item) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white, // 🔹 Card putih
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -172,71 +118,32 @@ class HomePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Stack(
-              children: [
-                Image.asset(
-                  coffee['image']!,
-                  height: 130,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-                if (coffee['rating']!.isNotEmpty)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star,
-                              size: 14, color: Colors.orangeAccent),
-                          const SizedBox(width: 2),
-                          Text(
-                            coffee['rating']!,
-                            style: const TextStyle(
-                                color: Colors.black, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
+            child: Image.asset(
+              item['image']!,
+              height: 120,
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
           ),
-
-          // Coffee info
           Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  coffee['name']!,
-                  style: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  coffee['desc']!,
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                Text(item['name']!,
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(item['desc']!,
+                    style:
+                        const TextStyle(color: Colors.black54, fontSize: 12)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      coffee['price']!,
+                      item['price']!,
                       style: const TextStyle(
                         color: Colors.orangeAccent,
                         fontWeight: FontWeight.bold,
@@ -247,7 +154,9 @@ class HomePage extends StatelessWidget {
                         color: Colors.orangeAccent,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 18),
+                      padding: const EdgeInsets.all(4),
+                      child: const Icon(Icons.add,
+                          color: Colors.white, size: 18),
                     ),
                   ],
                 ),

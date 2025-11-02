@@ -71,7 +71,10 @@ flutter:
     - assets/icons.png
     - assets/icons-kompres.png
     - assets/splash_logo.png
-  #   - images/a_dot_ham.jpeg
+    - assets/profile/budi.jpg
+    - assets/minuman/cappuccino.jpg
+    - assets/minuman/espresso.jpg
+    - assets/minuman/latte.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
