@@ -72,6 +72,9 @@ flutter:
     - assets/icons-kompres.png
     - assets/splash_logo.png
     - assets/profile/budi.jpg
+    - assets/martabak/martabak_cokelat.jpg
+    - assets/martabak/martabak_keju.jpg
+    - assets/martabak/martabak_cokelatkeju.jpg
     - assets/minuman/cappuccino.jpg
     - assets/minuman/espresso.jpg
     - assets/minuman/latte.jpg

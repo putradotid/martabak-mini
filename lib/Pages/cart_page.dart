@@ -1,101 +1,99 @@
+import 'package:auth_firebase/bloc/cart/cart_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CardPage extends StatelessWidget {
-  const CardPage({super.key});
+import 'package:auth_firebase/bloc/cart/cart_event.dart'; 
+import 'package:auth_firebase/bloc/cart/cart_state.dart'; 
+
+class CartPage extends StatelessWidget {
+  const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'My Cart',
-          style: GoogleFonts.sora(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF2F2D2C),
+    return BlocProvider(
+      create: (_) => CartBloc(),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF9F9F9),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildCartItem(
-                  image: 'assets/bean1.png',
-                  title: 'Indonesian Beans',
-                  subtitle: 'Beans • 500g',
-                  price: 42.50,
-                  quantity: 1,
-                ),
-                _buildCartItem(
-                  image: 'assets/bean2.png',
-                  title: 'Peru Beans',
-                  subtitle: 'Beans • 250g',
-                  price: 60.00,
-                  quantity: 2,
-                ),
-              ],
+          title: Text(
+            'My Cart',
+            style: GoogleFonts.sora(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF2F2D2C),
             ),
           ),
+        ),
+        body: BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            // Kalau masih kosong
+            if (state.items.isEmpty) {
+              return const Center(
+                child: Text("Keranjang masih kosong"),
+              );
+            }
 
-          // 💵 Ringkasan pembayaran
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 6,
-                  offset: const Offset(0, -3),
-                ),
-              ],
-            ),
-            child: Column(
+            // Kalau ada item di keranjang
+            return Column(
               children: [
-                _summaryRow('Items', '\$ 102.50'),
-                const SizedBox(height: 6),
-                _summaryRow('Discounts', '- \$ 3.00'),
-                const SizedBox(height: 8),
-                const Divider(),
-                _summaryRow('Total', '\$ 99.50', isBold: true),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                // Daftar Item
+                Expanded(
+                  child: ListView(
+                    children: [
+                      ...state.items.map((item) => ListTile(
+                            leading: const Icon(Icons.shopping_bag_outlined),
+                            title: Text(item.name),
+                            subtitle: Text("${item.quantity} x Rp${item.price}"),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => context
+                                  .read<CartBloc>()
+                                  .add(RemoveFromCart(item.id)),
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+
+                // Divider & Total
+                const Divider(thickness: 1),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Total: Rp${state.totalPrice}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                    ),
-                    onPressed: () {},
-                    child: Text(
-                      'Checkout',
-                      style: GoogleFonts.sora(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(
+                        onPressed: () =>
+                            context.read<CartBloc>().add(ClearCart()),
+                        icon: const Icon(Icons.delete_forever),
+                        label: const Text("Kosongkan Keranjang"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
+            );
+          },
+),
+
       ),
     );
   }

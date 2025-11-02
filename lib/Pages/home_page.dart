@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:auth_firebase/bloc/menu/menu_bloc.dart'; 
-import 'package:auth_firebase/bloc/menu/menu_event.dart'; 
-import 'package:auth_firebase/bloc/menu/menu_state.dart'; 
+import 'package:auth_firebase/bloc/menu/menu_bloc.dart';
+import 'package:auth_firebase/bloc/menu/menu_event.dart';
+import 'package:auth_firebase/bloc/menu/menu_state.dart';
+import 'package:auth_firebase/bloc/cart/cart_bloc.dart';
+import 'package:auth_firebase/bloc/cart/cart_event.dart';
+import 'package:auth_firebase/models/cart_item.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => MenuBloc()..add(LoadMenu()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => MenuBloc()..add(LoadMenu())),
+        BlocProvider(create: (_) => CartBloc()),
+      ],
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -40,8 +46,7 @@ class HomePage extends StatelessWidget {
                       children: categories.map((cat) {
                         final isActive = state.selectedCategory == cat;
                         return GestureDetector(
-                          onTap: () =>
-                              bloc.add(FilterMenuByCategory(cat)),
+                          onTap: () => bloc.add(FilterMenuByCategory(cat)),
                           child: Column(
                             children: [
                               Text(
@@ -88,7 +93,7 @@ class HomePage extends StatelessWidget {
                         itemCount: state.items.length,
                         itemBuilder: (context, index) {
                           final item = state.items[index];
-                          return _buildMenuCard(item);
+                          return _buildMenuCard(context, item);
                         },
                       );
                     },
@@ -102,7 +107,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(Map<String, String> item) {
+  // Perhatikan: tambahkan context di parameter
+  Widget _buildMenuCard(BuildContext context, Map<String, String> item) {
+    final price = double.tryParse(
+      item['price']?.replaceAll(RegExp(r'[^0-9.]'), '') ?? '0',
+    ) ?? 0.0;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -132,12 +142,17 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item['name']!,
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                Text(item['desc']!,
-                    style:
-                        const TextStyle(color: Colors.black54, fontSize: 12)),
+                Text(
+                  item['name']!,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  item['desc']!,
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,14 +164,24 @@ class HomePage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.orangeAccent,
-                        borderRadius: BorderRadius.circular(8),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<CartBloc>().add(AddToCart(
+                          CartItem(
+                            id: item['id'] ?? "1",
+                            name: item['name'] ?? "Martabak",
+                            price: price,
+                          ),
+                        ));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        backgroundColor: Colors.orangeAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      padding: const EdgeInsets.all(4),
-                      child: const Icon(Icons.add,
-                          color: Colors.white, size: 18),
+                      child: const Icon(Icons.add, color: Colors.white, size: 18),
                     ),
                   ],
                 ),

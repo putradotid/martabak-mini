@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'login_screen.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../pages/home_page.dart';
-import '../pages/card_page.dart';
+import '../pages/cart_page.dart';
 import '../pages/orders_page.dart';
 import '../pages/profile_page.dart';
 import '../pages/chat_page.dart';
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Daftar halaman yang akan ditampilkan sesuai index bottom nav
   final List<Widget> _pages = const [
     HomePage(),
-    CardPage(),
+    CartPage(),
     OrdersPage(),
     ProfilePage(),
     ChatPage(),
